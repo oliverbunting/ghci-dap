@@ -17,31 +17,63 @@ when:
 - condition: impl(ghc < 8.10.0)
   dependencies: unsupported-ghc-version > 1 && < 1
 
-dependencies:
-- base >=4.7 && <5
-- ghc
-- ghci
-- ghc-paths
-- ghc-prim
-- transformers
-- containers
-- time
-- directory
-- haskeline
-- array
-- process
-- ghc-boot
-- filepath
-- bytestring
-- deepseq
-- text
-- exceptions
-- haskell-dap >= 0.0.15.0
-
 library:
   source-dirs: src
   exposed-modules:
   - GHCi.DAP
+  - GHCi.DAP.Command
+  - GHCi.DAP.Constant
+  - GHCi.DAP.Type
+  - GHCi.DAP.Utility
+  - GHCi.GhcApiCompat
+  - GHCi.Leak
+  - GHCi.UI
+  - GHCi.UI.Info
+  - GHCi.UI.Monad
+  - GHCi.UI.Tags
+  - GHCi.Util
+  - GHCMain
+  cc-options: -fPIC
+  cpp-options: -DGHCI -DHAVE_INTERNAL_INTERPRETER -DGHC_LOADED_INTO_GHCI
+
+  dependencies:
+  - ghc
+  - ghci
+  - ghc-paths
+  - ghc-prim
+  - transformers
+  - containers
+  - time
+  - directory
+  - haskeline
+  - array
+  - process
+  - ghc-boot
+  - filepath
+  - bytestring
+  - deepseq
+  - text
+  - exceptions
+  - haskell-dap >= 0.0.15.0
+
+  when:
+  - condition: (impl(ghc >= 8.10.1)) && (impl(ghc < 8.11.0))
+    source-dirs: app-ghc-8.10
+
+  - condition: (impl(ghc >= 9.0.1)) && (impl(ghc < 9.1.0))
+    source-dirs: app-ghc-9.0
+
+  - condition: (impl(ghc >= 9.2.1)) && (impl(ghc < 9.3.0))
+    source-dirs: app-ghc-9.2
+
+  - condition: os(windows)
+    then:
+      dependencies:
+      - Win32
+    else:
+      dependencies:
+      - unix
+
 
 executables:
   ghci-dap:
@@ -51,29 +83,15 @@ executables:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
-    - -Wall
-    - -fno-warn-unused-do-bind
-    - -fno-warn-name-shadowing
-    cc-options: -fPIC
-    cpp-options: -DGHCI -DHAVE_INTERNAL_INTERPRETER -DGHC_LOADED_INTO_GHCI
     dependencies:
     - ghci-dap
 
-    when:
-    - condition: (impl(ghc >= 8.10.1)) && (impl(ghc < 8.11.0))
-      source-dirs: app-ghc-8.10
+# Common ghc options
+ghc-options:
+  - -Wall
+  - -fno-warn-unused-do-bind
+  - -fno-warn-name-shadowing
 
-    - condition: (impl(ghc >= 9.0.1)) && (impl(ghc < 9.1.0))
-      source-dirs: app-ghc-9.0
-
-    - condition: (impl(ghc >= 9.2.1)) && (impl(ghc < 9.3.0))
-      source-dirs: app-ghc-9.2
-
-    - condition: os(windows)
-      then:
-        dependencies:
-        - Win32
-      else:
-        dependencies:
-        - unix
-
+# Common dependencies
+dependencies:
+  - base >=4.7 && <5

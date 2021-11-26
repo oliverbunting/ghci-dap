@@ -26,4 +26,3 @@ main = do
       withDapCommands = defaultCommands ++ dapCommands
 
   G.ghcMain ghciSettings {G.availableCommands = withDapCommands}
-  
